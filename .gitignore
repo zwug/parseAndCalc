@@ -1,0 +1,7 @@
+*.config
+*.exe
+*.old
+/obj/*
+/bin/*
+/Properties/*
+*.csproj*
