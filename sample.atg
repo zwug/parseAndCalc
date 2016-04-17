@@ -1,37 +1,36 @@
 COMPILER Sample
 $checkEOF=false
 
-        public int calculateExpression(int leftOp, int rightOp, string operation)
-        {
-			Console.WriteLine(operation);
-            switch (operation) {
-                case "PLUS":
-                    return leftOp + rightOp;
-                case "MINUS":
-                    return leftOp - rightOp;
-					// priorites
-                case "MUL":
-                    return leftOp * rightOp;
-                case "DIV":
-                    return leftOp / rightOp;
-                default:
-                    return 0;
-            }
-        }
+public double calculateExpression(double leftOp, double rightOp, string operation)
+{
+	Console.WriteLine(operation);
+	switch (operation) {
+		case "PLUS":
+			return leftOp + rightOp;
+		case "MINUS":
+			return leftOp - rightOp;
+		case "MUL":
+			return leftOp * rightOp;
+		case "DIV":
+			return leftOp / rightOp;
+		default:
+			return 0;
+	}
+}
 
 CHARACTERS
 digit = '0'..'9'.
 TOKENS
-number = digit {digit}.
+number = digit {digit}[','{digit}].
 
 
 PRODUCTIONS
-	Sample 	(. int n; .)
+	Sample 	(. double n; .)
 	=	{
 			Expr<out n>	(. Console.WriteLine(n); .)
 		}.
 	/*-------------------------------------------------------------*/
-	Expr<out int n >	(. int n1; .)
+	Expr<out double n >	(. double n1; .)
 	=	HigherExpr<out n> (. string op = "undefined"; .)
 		{	(
 			'+' (. op = "PLUS"; .) |
@@ -40,16 +39,21 @@ PRODUCTIONS
 			HigherExpr<out n1>	(. n = calculateExpression(n, n1, op); .)
 		}.
 	/*-------------------------------------------------------------*/
-	HigherExpr<out int n >	(. int n1; .)
-	=	Term<out n> (. string op = "undefined"; .)
+	HigherExpr<out double n >	(. double n1; .)
+	=	singleExpr<out n> (. string op = "undefined"; .)
 		{	(
 			'*' (. op = "MUL"; .) |
 			'/' (. op = "DIV"; .)
 			)
-			Term<out n1>	(. n = calculateExpression(n, n1, op); .)
+			singleExpr<out n1>	(. n = calculateExpression(n, n1, op); .)
 		}.
 	/*-------------------------------------------------------------*/
-	Term<out int n> 
-	=	number	(. n = Convert.ToInt32(t.val); .)
+	singleExpr<out double n > (. n = 0.0; .)
+	=	Term<out n> |
+		"sin(" Term<out n> ')' (. n = Math.Sin(n); .)
+		.
+	/*-------------------------------------------------------------*/
+	Term<out double n> 
+	=	number	(. n = Convert.ToDouble(t.val); .)
 		.
 END Sample.

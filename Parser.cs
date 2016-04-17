@@ -6,7 +6,7 @@ using System;
 public class Parser {
 	public const int _EOF = 0;
 	public const int _number = 1;
-	public const int maxT = 6;
+	public const int maxT = 8;
 
 	const bool _T = true;
 	const bool _x = false;
@@ -19,23 +19,22 @@ public class Parser {
 	public Token la;   // lookahead token
 	int errDist = minErrDist;
 
-public int calculateExpression(int leftOp, int rightOp, string operation)
-        {
-			Console.WriteLine(operation);
-            switch (operation) {
-                case "PLUS":
-                    return leftOp + rightOp;
-                case "MINUS":
-                    return leftOp - rightOp;
-					// priorites
-                case "MUL":
-                    return leftOp * rightOp;
-                case "DIV":
-                    return leftOp / rightOp;
-                default:
-                    return 0;
-            }
-        }
+public double calculateExpression(double leftOp, double rightOp, string operation)
+{
+	Console.WriteLine(operation);
+	switch (operation) {
+		case "PLUS":
+			return leftOp + rightOp;
+		case "MINUS":
+			return leftOp - rightOp;
+		case "MUL":
+			return leftOp * rightOp;
+		case "DIV":
+			return leftOp / rightOp;
+		default:
+			return 0;
+	}
+}
 
 
 
@@ -97,15 +96,15 @@ public int calculateExpression(int leftOp, int rightOp, string operation)
 
 	
 	void Sample() {
-		int n; 
-		while (la.kind == 1) {
+		double n; 
+		while (la.kind == 1 || la.kind == 6) {
 			Expr(out n);
 			Console.WriteLine(n); 
 		}
 	}
 
-	void Expr(out int n ) {
-		int n1; 
+	void Expr(out double n ) {
+		double n1; 
 		HigherExpr(out n);
 		string op = "undefined"; 
 		while (la.kind == 2 || la.kind == 3) {
@@ -121,9 +120,9 @@ public int calculateExpression(int leftOp, int rightOp, string operation)
 		}
 	}
 
-	void HigherExpr(out int n ) {
-		int n1; 
-		Term(out n);
+	void HigherExpr(out double n ) {
+		double n1; 
+		singleExpr(out n);
 		string op = "undefined"; 
 		while (la.kind == 4 || la.kind == 5) {
 			if (la.kind == 4) {
@@ -133,14 +132,26 @@ public int calculateExpression(int leftOp, int rightOp, string operation)
 				Get();
 				op = "DIV"; 
 			}
-			Term(out n1);
+			singleExpr(out n1);
 			n = calculateExpression(n, n1, op); 
 		}
 	}
 
-	void Term(out int n) {
+	void singleExpr(out double n ) {
+		n = 0.0; 
+		if (la.kind == 1) {
+			Term(out n);
+		} else if (la.kind == 6) {
+			Get();
+			Term(out n);
+			Expect(7);
+			n = Math.Sin(n); 
+		} else SynErr(9);
+	}
+
+	void Term(out double n) {
 		Expect(1);
-		n = Convert.ToInt32(t.val); 
+		n = Convert.ToDouble(t.val); 
 	}
 
 
@@ -154,7 +165,7 @@ public int calculateExpression(int leftOp, int rightOp, string operation)
 	}
 	
 	static readonly bool[,] set = {
-		{_T,_x,_x,_x, _x,_x,_x,_x}
+		{_T,_x,_x,_x, _x,_x,_x,_x, _x,_x}
 
 	};
 } // end Parser
@@ -174,7 +185,10 @@ public class Errors {
 			case 3: s = "\"-\" expected"; break;
 			case 4: s = "\"*\" expected"; break;
 			case 5: s = "\"/\" expected"; break;
-			case 6: s = "??? expected"; break;
+			case 6: s = "\"sin(\" expected"; break;
+			case 7: s = "\")\" expected"; break;
+			case 8: s = "??? expected"; break;
+			case 9: s = "invalid singleExpr"; break;
 
 			default: s = "error " + n; break;
 		}

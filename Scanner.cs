@@ -203,8 +203,8 @@ public class UTF8Buffer: Buffer {
 public class Scanner {
 	const char EOL = '\n';
 	const int eofSym = 0; /* pdt */
-	const int maxT = 6;
-	const int noSym = 6;
+	const int maxT = 8;
+	const int noSym = 8;
 
 
 	public Buffer buffer; // scanner buffer
@@ -227,10 +227,12 @@ public class Scanner {
 	static Scanner() {
 		start = new Hashtable(128);
 		for (int i = 48; i <= 57; ++i) start[i] = 1;
-		start[43] = 2; 
-		start[45] = 3; 
-		start[42] = 4; 
-		start[47] = 5; 
+		start[43] = 3; 
+		start[45] = 4; 
+		start[42] = 5; 
+		start[47] = 6; 
+		start[115] = 7; 
+		start[41] = 11; 
 		start[Buffer.EOF] = -1;
 
 	}
@@ -327,15 +329,33 @@ public class Scanner {
 			case 1:
 				recEnd = pos; recKind = 1;
 				if (ch >= '0' && ch <= '9') {AddCh(); goto case 1;}
+				else if (ch == ',') {AddCh(); goto case 2;}
 				else {t.kind = 1; break;}
 			case 2:
-				{t.kind = 2; break;}
+				recEnd = pos; recKind = 1;
+				if (ch >= '0' && ch <= '9') {AddCh(); goto case 2;}
+				else {t.kind = 1; break;}
 			case 3:
-				{t.kind = 3; break;}
+				{t.kind = 2; break;}
 			case 4:
-				{t.kind = 4; break;}
+				{t.kind = 3; break;}
 			case 5:
+				{t.kind = 4; break;}
+			case 6:
 				{t.kind = 5; break;}
+			case 7:
+				if (ch == 'i') {AddCh(); goto case 8;}
+				else {goto case 0;}
+			case 8:
+				if (ch == 'n') {AddCh(); goto case 9;}
+				else {goto case 0;}
+			case 9:
+				if (ch == '(') {AddCh(); goto case 10;}
+				else {goto case 0;}
+			case 10:
+				{t.kind = 6; break;}
+			case 11:
+				{t.kind = 7; break;}
 
 		}
 		t.val = new String(tval, 0, tlen);
