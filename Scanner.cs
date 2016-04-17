@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Collections;
 
-namespace Equatiator {
+
 
 public class Token {
 	public int kind;    // token kind
@@ -203,8 +203,8 @@ public class UTF8Buffer: Buffer {
 public class Scanner {
 	const char EOL = '\n';
 	const int eofSym = 0; /* pdt */
-	const int maxT = 4;
-	const int noSym = 4;
+	const int maxT = 6;
+	const int noSym = 6;
 
 
 	public Buffer buffer; // scanner buffer
@@ -227,8 +227,10 @@ public class Scanner {
 	static Scanner() {
 		start = new Hashtable(128);
 		for (int i = 48; i <= 57; ++i) start[i] = 1;
-		start[99] = 2; 
-		start[43] = 6; 
+		start[43] = 2; 
+		start[45] = 3; 
+		start[42] = 4; 
+		start[47] = 5; 
 		start[Buffer.EOF] = -1;
 
 	}
@@ -327,18 +329,13 @@ public class Scanner {
 				if (ch >= '0' && ch <= '9') {AddCh(); goto case 1;}
 				else {t.kind = 1; break;}
 			case 2:
-				if (ch == 'a') {AddCh(); goto case 3;}
-				else {goto case 0;}
-			case 3:
-				if (ch == 'l') {AddCh(); goto case 4;}
-				else {goto case 0;}
-			case 4:
-				if (ch == 'c') {AddCh(); goto case 5;}
-				else {goto case 0;}
-			case 5:
 				{t.kind = 2; break;}
-			case 6:
+			case 3:
 				{t.kind = 3; break;}
+			case 4:
+				{t.kind = 4; break;}
+			case 5:
+				{t.kind = 5; break;}
 
 		}
 		t.val = new String(tval, 0, tlen);
@@ -378,4 +375,3 @@ public class Scanner {
 	public void ResetPeek () { pt = tokens; }
 
 } // end Scanner
-}

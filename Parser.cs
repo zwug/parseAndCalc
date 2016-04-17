@@ -1,14 +1,12 @@
 
 using System;
 
-namespace Equatiator {
-
 
 
 public class Parser {
 	public const int _EOF = 0;
 	public const int _number = 1;
-	public const int maxT = 4;
+	public const int maxT = 6;
 
 	const bool _T = true;
 	const bool _x = false;
@@ -20,6 +18,24 @@ public class Parser {
 	public Token t;    // last recognized token
 	public Token la;   // lookahead token
 	int errDist = minErrDist;
+
+public int calculateExpression(int leftOp, int rightOp, string operation)
+        {
+			Console.WriteLine(operation);
+            switch (operation) {
+                case "PLUS":
+                    return leftOp + rightOp;
+                case "MINUS":
+                    return leftOp - rightOp;
+					// priorites
+                case "MUL":
+                    return leftOp * rightOp;
+                case "DIV":
+                    return leftOp / rightOp;
+                default:
+                    return 0;
+            }
+        }
 
 
 
@@ -82,20 +98,43 @@ public class Parser {
 	
 	void Sample() {
 		int n; 
-		while (la.kind == 2) {
-			Get();
+		while (la.kind == 1) {
 			Expr(out n);
 			Console.WriteLine(n); 
 		}
 	}
 
-	void Expr(out int n) {
+	void Expr(out int n ) {
+		int n1; 
+		HigherExpr(out n);
+		string op = "undefined"; 
+		while (la.kind == 2 || la.kind == 3) {
+			if (la.kind == 2) {
+				Get();
+				op = "PLUS"; 
+			} else {
+				Get();
+				op = "MINUS"; 
+			}
+			HigherExpr(out n1);
+			n = calculateExpression(n, n1, op); 
+		}
+	}
+
+	void HigherExpr(out int n ) {
 		int n1; 
 		Term(out n);
-		while (la.kind == 3) {
-			Get();
+		string op = "undefined"; 
+		while (la.kind == 4 || la.kind == 5) {
+			if (la.kind == 4) {
+				Get();
+				op = "MUL"; 
+			} else {
+				Get();
+				op = "DIV"; 
+			}
 			Term(out n1);
-			n = n + n1; 
+			n = calculateExpression(n, n1, op); 
 		}
 	}
 
@@ -115,7 +154,7 @@ public class Parser {
 	}
 	
 	static readonly bool[,] set = {
-		{_T,_x,_x,_x, _x,_x}
+		{_T,_x,_x,_x, _x,_x,_x,_x}
 
 	};
 } // end Parser
@@ -131,9 +170,11 @@ public class Errors {
 		switch (n) {
 			case 0: s = "EOF expected"; break;
 			case 1: s = "number expected"; break;
-			case 2: s = "\"calc\" expected"; break;
-			case 3: s = "\"+\" expected"; break;
-			case 4: s = "??? expected"; break;
+			case 2: s = "\"+\" expected"; break;
+			case 3: s = "\"-\" expected"; break;
+			case 4: s = "\"*\" expected"; break;
+			case 5: s = "\"/\" expected"; break;
+			case 6: s = "??? expected"; break;
 
 			default: s = "error " + n; break;
 		}
@@ -163,5 +204,4 @@ public class Errors {
 
 public class FatalError: Exception {
 	public FatalError(string m): base(m) {}
-}
 }

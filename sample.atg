@@ -1,30 +1,55 @@
 COMPILER Sample
-$checkEOF=false 
+$checkEOF=false
+
+        public int calculateExpression(int leftOp, int rightOp, string operation)
+        {
+			Console.WriteLine(operation);
+            switch (operation) {
+                case "PLUS":
+                    return leftOp + rightOp;
+                case "MINUS":
+                    return leftOp - rightOp;
+					// priorites
+                case "MUL":
+                    return leftOp * rightOp;
+                case "DIV":
+                    return leftOp / rightOp;
+                default:
+                    return 0;
+            }
+        }
+
 CHARACTERS
 digit = '0'..'9'.
 TOKENS
 number = digit {digit}.
 
+
 PRODUCTIONS
-Sample
-(. int n; .) 
-= { 
-"calc"
-Expr<out n>
-(. Console.WriteLine(n); .)
-}.
-/*-------------------------------------------------------------*/
-Expr<out int n>
-(. int n1; .) 
-= Term<out n>
-{ 
-'+'
-Term<out n1>
-(. n = n + n1; .) 
-}.
-/*-------------------------------------------------------------*/
-Term<out int n>
-= number
-(. n = Convert.ToInt32(t.val); .) 
-. 
+	Sample 	(. int n; .)
+	=	{
+			Expr<out n>	(. Console.WriteLine(n); .)
+		}.
+	/*-------------------------------------------------------------*/
+	Expr<out int n >	(. int n1; .)
+	=	HigherExpr<out n> (. string op = "undefined"; .)
+		{	(
+			'+' (. op = "PLUS"; .) |
+			'-' (. op = "MINUS"; .)
+			)
+			HigherExpr<out n1>	(. n = calculateExpression(n, n1, op); .)
+		}.
+	/*-------------------------------------------------------------*/
+	HigherExpr<out int n >	(. int n1; .)
+	=	Term<out n> (. string op = "undefined"; .)
+		{	(
+			'*' (. op = "MUL"; .) |
+			'/' (. op = "DIV"; .)
+			)
+			Term<out n1>	(. n = calculateExpression(n, n1, op); .)
+		}.
+	/*-------------------------------------------------------------*/
+	Term<out int n> 
+	=	number	(. n = Convert.ToInt32(t.val); .)
+		.
 END Sample.
