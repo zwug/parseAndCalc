@@ -13,7 +13,10 @@ public double calculateExpression(double leftOp, double rightOp, string operatio
 			return leftOp * rightOp;
 		case "DIV":
 			return leftOp / rightOp;
+		case "POW":
+			return Math.Pow(leftOp, rightOp);
 		default:
+			Console.WriteLine("Invalid operation symbol: {operation}", operation);
 			return 0;
 	}
 }
@@ -43,14 +46,17 @@ PRODUCTIONS
 	=	singleExpr<out n> (. string op = "undefined"; .)
 		{	(
 			'*' (. op = "MUL"; .) |
-			'/' (. op = "DIV"; .)
+			'/' (. op = "DIV"; .) |
+			'^' (. op = "POW"; .)
 			)
 			singleExpr<out n1>	(. n = calculateExpression(n, n1, op); .)
 		}.
 	/*-------------------------------------------------------------*/
 	singleExpr<out double n > (. n = 0.0; .)
 	=	Term<out n> |
-		"sin(" Term<out n> ')' (. n = Math.Sin(n); .)
+		"sin(" Term<out n> ')' (. n = Math.Sin(n); .) |
+		"exp(" Term<out n> ')' (. n = Math.Exp(n); .) |
+		"cos(" Term<out n> ')' (. n = Math.Cos(n); .)
 		.
 	/*-------------------------------------------------------------*/
 	Term<out double n> 

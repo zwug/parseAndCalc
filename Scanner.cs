@@ -203,8 +203,8 @@ public class UTF8Buffer: Buffer {
 public class Scanner {
 	const char EOL = '\n';
 	const int eofSym = 0; /* pdt */
-	const int maxT = 8;
-	const int noSym = 8;
+	const int maxT = 11;
+	const int noSym = 11;
 
 
 	public Buffer buffer; // scanner buffer
@@ -231,8 +231,11 @@ public class Scanner {
 		start[45] = 4; 
 		start[42] = 5; 
 		start[47] = 6; 
-		start[115] = 7; 
-		start[41] = 11; 
+		start[94] = 7; 
+		start[115] = 8; 
+		start[41] = 12; 
+		start[101] = 13; 
+		start[99] = 17; 
 		start[Buffer.EOF] = -1;
 
 	}
@@ -344,18 +347,42 @@ public class Scanner {
 			case 6:
 				{t.kind = 5; break;}
 			case 7:
-				if (ch == 'i') {AddCh(); goto case 8;}
-				else {goto case 0;}
+				{t.kind = 6; break;}
 			case 8:
-				if (ch == 'n') {AddCh(); goto case 9;}
+				if (ch == 'i') {AddCh(); goto case 9;}
 				else {goto case 0;}
 			case 9:
-				if (ch == '(') {AddCh(); goto case 10;}
+				if (ch == 'n') {AddCh(); goto case 10;}
 				else {goto case 0;}
 			case 10:
-				{t.kind = 6; break;}
+				if (ch == '(') {AddCh(); goto case 11;}
+				else {goto case 0;}
 			case 11:
 				{t.kind = 7; break;}
+			case 12:
+				{t.kind = 8; break;}
+			case 13:
+				if (ch == 'x') {AddCh(); goto case 14;}
+				else {goto case 0;}
+			case 14:
+				if (ch == 'p') {AddCh(); goto case 15;}
+				else {goto case 0;}
+			case 15:
+				if (ch == '(') {AddCh(); goto case 16;}
+				else {goto case 0;}
+			case 16:
+				{t.kind = 9; break;}
+			case 17:
+				if (ch == 'o') {AddCh(); goto case 18;}
+				else {goto case 0;}
+			case 18:
+				if (ch == 's') {AddCh(); goto case 19;}
+				else {goto case 0;}
+			case 19:
+				if (ch == '(') {AddCh(); goto case 20;}
+				else {goto case 0;}
+			case 20:
+				{t.kind = 10; break;}
 
 		}
 		t.val = new String(tval, 0, tlen);
