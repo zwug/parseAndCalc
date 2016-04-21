@@ -6,7 +6,8 @@ using System;
 public class Parser {
 	public const int _EOF = 0;
 	public const int _number = 1;
-	public const int maxT = 11;
+	public const int _ident = 2;
+	public const int maxT = 12;
 
 	const bool _T = true;
 	const bool _x = false;
@@ -110,8 +111,8 @@ public double calculateExpression(double leftOp, double rightOp, string operatio
 		double n1; 
 		HigherExpr(out n);
 		string op = "undefined"; 
-		while (la.kind == 2 || la.kind == 3) {
-			if (la.kind == 2) {
+		while (la.kind == 3 || la.kind == 4) {
+			if (la.kind == 3) {
 				Get();
 				op = "PLUS"; 
 			} else {
@@ -127,11 +128,11 @@ public double calculateExpression(double leftOp, double rightOp, string operatio
 		double n1; 
 		singleExpr(out n);
 		string op = "undefined"; 
-		while (la.kind == 4 || la.kind == 5 || la.kind == 6) {
-			if (la.kind == 4) {
+		while (la.kind == 5 || la.kind == 6 || la.kind == 7) {
+			if (la.kind == 5) {
 				Get();
 				op = "MUL"; 
-			} else if (la.kind == 5) {
+			} else if (la.kind == 6) {
 				Get();
 				op = "DIV"; 
 			} else {
@@ -145,29 +146,35 @@ public double calculateExpression(double leftOp, double rightOp, string operatio
 
 	void singleExpr(out double n ) {
 		n = 0.0; 
-		if (la.kind == 1) {
+		if (la.kind == 1 || la.kind == 2) {
 			Term(out n);
-		} else if (la.kind == 7) {
+		} else if (la.kind == 8) {
 			Get();
 			Term(out n);
-			Expect(8);
+			Expect(9);
 			n = Math.Sin(n); 
-		} else if (la.kind == 9) {
-			Get();
-			Term(out n);
-			Expect(8);
-			n = Math.Exp(n); 
 		} else if (la.kind == 10) {
 			Get();
 			Term(out n);
-			Expect(8);
+			Expect(9);
+			n = Math.Exp(n); 
+		} else if (la.kind == 11) {
+			Get();
+			Term(out n);
+			Expect(9);
 			n = Math.Cos(n); 
-		} else SynErr(12);
+		} else SynErr(13);
 	}
 
 	void Term(out double n) {
-		Expect(1);
-		n = Convert.ToDouble(t.val); 
+		n = 0; 
+		if (la.kind == 1) {
+			Get();
+			n = Convert.ToDouble(t.val); 
+		} else if (la.kind == 2) {
+			Get();
+			Console.WriteLine("Invalid operation symbol: " + t.val); 
+		} else SynErr(14);
 	}
 
 
@@ -181,8 +188,8 @@ public double calculateExpression(double leftOp, double rightOp, string operatio
 	}
 	
 	static readonly bool[,] set = {
-		{_T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x},
-		{_x,_T,_x,_x, _x,_x,_x,_T, _x,_T,_T,_x, _x}
+		{_T,_x,_x,_x, _x,_x,_x,_x, _x,_x,_x,_x, _x,_x},
+		{_x,_T,_T,_x, _x,_x,_x,_x, _T,_x,_T,_T, _x,_x}
 
 	};
 } // end Parser
@@ -198,17 +205,19 @@ public class Errors {
 		switch (n) {
 			case 0: s = "EOF expected"; break;
 			case 1: s = "number expected"; break;
-			case 2: s = "\"+\" expected"; break;
-			case 3: s = "\"-\" expected"; break;
-			case 4: s = "\"*\" expected"; break;
-			case 5: s = "\"/\" expected"; break;
-			case 6: s = "\"^\" expected"; break;
-			case 7: s = "\"sin(\" expected"; break;
-			case 8: s = "\")\" expected"; break;
-			case 9: s = "\"exp(\" expected"; break;
-			case 10: s = "\"cos(\" expected"; break;
-			case 11: s = "??? expected"; break;
-			case 12: s = "invalid singleExpr"; break;
+			case 2: s = "ident expected"; break;
+			case 3: s = "\"+\" expected"; break;
+			case 4: s = "\"-\" expected"; break;
+			case 5: s = "\"*\" expected"; break;
+			case 6: s = "\"/\" expected"; break;
+			case 7: s = "\"^\" expected"; break;
+			case 8: s = "\"sin(\" expected"; break;
+			case 9: s = "\")\" expected"; break;
+			case 10: s = "\"exp(\" expected"; break;
+			case 11: s = "\"cos(\" expected"; break;
+			case 12: s = "??? expected"; break;
+			case 13: s = "invalid singleExpr"; break;
+			case 14: s = "invalid Term"; break;
 
 			default: s = "error " + n; break;
 		}
